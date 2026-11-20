@@ -466,3 +466,5 @@ body{font-family:var(--f-ui)}
 }
 .op-name{display:block;white-space:nowrap}
 h1.disp,h2.disp,h3.disp,.folder-txt h3,.opt .disp,.next-film .disp,.fcard h3{overflow-wrap:normal;word-break:normal}
+.fthumb video.still{opacity:1}
+.fcard.previewing .fthumb video.still{opacity:0}

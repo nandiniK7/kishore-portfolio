@@ -4,7 +4,9 @@
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var G = window.gsap, motion = !!G && !reduce;
-  var ROUTES = $$('.view').map(function (v) { return v.dataset.view; });
+  var ROUTES = [];
+  function refreshRoutes() { ROUTES = $$('.view').map(function (v) { return v.dataset.view; }); }
+  refreshRoutes();
   var current = null, busy = false, io = null;
   var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
@@ -171,7 +173,8 @@
   var theatre = null;
   function pauseAll(except) { $$('.player video, [data-prev] video').forEach(function (v) { if (v !== except && !v.paused) v.pause(); }); }
   function exitTheatre() { if (theatre) { theatre.classList.remove('theatre'); document.body.style.overflow = ''; theatre = null; } }
-  $$('.player').forEach(function (pl) {
+  function initPlayer(pl) {
+    if (pl.dataset.init) return; pl.dataset.init = '1';
     var v = $('video', pl), big = $('.big', pl), pp = $('.p-play', pl), rng = $('input', pl), cur = $('.cur', pl), mute = $('.p-mute', pl), full = $('.p-full', pl);
     var idle;
     function play() { pauseAll(v); pl.classList.add('started'); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
@@ -204,7 +207,7 @@
       else if (k === 'escape') exitTheatre();
     });
     pl.addEventListener('mousemove', function () { pl.classList.remove('idle'); clearTimeout(idle); idle = setTimeout(function () { pl.classList.add('idle'); }, 2200); });
-  });
+  }
   var PAUSE = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M4 3h3.5v12H4zM10.5 3H14v12h-3.5z"/></svg>';
   var PLAYI = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M5 3l10 6-10 6z"/></svg>';
   document.addEventListener('click', function (e) {
@@ -215,8 +218,9 @@
   });
 
   /* ---------- animated thumbnails (hover preview, muted, lazy) ---------- */
-  if (canHover && !reduce) {
-    $$('[data-prev]').forEach(function (card) {
+  function initPreview(card) {
+    if (!canHover || reduce || card.dataset.pinit) return; card.dataset.pinit = '1';
+    (function () {
       var host = card.classList.contains('media') ? card : $('.fthumb', card), wrap = card.classList.contains('media') ? card.closest('.scene') : card;
       var v = null;
       card.addEventListener('mouseenter', function () {
@@ -224,7 +228,7 @@
         pauseAll(v); var p = v.play(); if (p && p.catch) p.catch(function () {}); wrap.classList.add('previewing');
       });
       card.addEventListener('mouseleave', function () { if (v) v.pause(); wrap.classList.remove('previewing'); });
-    });
+    })();
   }
 
   /* ---------- filters ---------- */
@@ -248,7 +252,7 @@
   var lb = $('#lb'), lbImg = $('#lb-img'), list = [], idx = 0, opener = null;
   function render() {
     var k = list[idx], p = PHOTOS[k];
-    lbImg.src = 'img/' + k + '.jpg'; lbImg.alt = p.a;
+    lbImg.src = p.src || ('img/' + k + '.jpg'); lbImg.alt = p.a;
     $('#lb-title').textContent = p.t; $('#lb-meta').textContent = p.m;
     $('#lb-count').textContent = 'FRAME ' + (idx + 1 < 10 ? '0' : '') + (idx + 1) + ' / ' + (list.length < 10 ? '0' : '') + list.length + ' · ' + p.c.toUpperCase();
     if (motion) G.fromTo(lbImg, { autoAlpha: 0, scale: 0.985 }, { autoAlpha: 1, scale: 1, duration: 0.6, ease: 'expo.out' });
@@ -288,5 +292,107 @@
   });
 
   /* ---------- boot ---------- */
-  show(route() || 'home', true);
+  /* ---------- new work from content.json (added by Kishore) ---------- */
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function slugify(s) { return String(s).toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'film'; }
+  function niceDate(d) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ''); return m ? m[3] + '.' + m[2] + '.' + m[1] : (d || ''); }
+  var PHOTO_ALBUMS = { festivals: 'Festivals', festival: 'Festivals', motorsport: 'Motorsport', stage: 'Stage & live', 'stage & live': 'Stage & live', live: 'Stage & live', architecture: 'Architecture', quiet: 'Landscape & more', landscape: 'Landscape & more', 'landscape & more': 'Landscape & more' };
+  var PHOTO_KEYS = { 'Festivals': 'festivals', 'Motorsport': 'motorsport', 'Stage & live': 'stage', 'Architecture': 'architecture', 'Landscape & more': 'quiet' };
+  function ensureAlbum(group, key, label, cover) {
+    if (!group) return;
+    var ex = $$('[data-f]', group).filter(function (b) { return b.dataset.f === key; })[0];
+    if (ex) return;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'album'; b.dataset.f = key; b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = '<span class="album-tab"></span><span class="album-cover"><img src="' + esc(cover) + '" alt="" loading="lazy"></span><span class="album-txt"><span class="album-t">' + esc(label) + '</span><span class="mono silver">0 items</span></span>';
+    group.appendChild(b);
+  }
+  function recount(view) {
+    var g = $('[data-albums]', view), grid = $('[data-items]', view); if (!g || !grid) return;
+    var items = Array.prototype.slice.call(grid.children);
+    $$('[data-f]', g).forEach(function (b) {
+      var n = b.dataset.f === 'all' ? items.length : items.filter(function (it) { return it.dataset.cat === b.dataset.f; }).length;
+      var s = $('.mono', b); if (s) s.textContent = n + ' items';
+    });
+    return items.length;
+  }
+  function addPhotos(list) {
+    var view = $('.view[data-view="photography"]'), grid = $('[data-items]', view), group = $('[data-albums]', view);
+    if (!grid) return;
+    list.slice().reverse().forEach(function (p, i) {
+      if (!p || !p.file) return;
+      var raw = String(p.album || 'festivals').trim(), label = PHOTO_ALBUMS[raw.toLowerCase()] || raw, key = PHOTO_KEYS[label] || slugify(label);
+      ensureAlbum(group, key, label, p.file);
+      var k = 'new-' + i + '-' + slugify(p.title || p.file);
+      window.PHOTOS[k] = { t: p.title || 'Untitled', m: [niceDate(p.date), p.caption].filter(Boolean).join(' · '), a: p.alt || p.title || 'Photograph by Kishore', c: label, src: p.file };
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'ph-item'; b.dataset.cat = key; b.dataset.k = k; b.setAttribute('aria-label', 'View ' + (p.title || 'photograph') + ' full screen');
+      b.innerHTML = '<div class="fr mask-in" style="aspect-ratio: 3 / 4"><img src="' + esc(p.file) + '" alt="' + esc(window.PHOTOS[k].a) + '" loading="lazy" decoding="async"></div><div class="cap"><span class="ital" style="font-size: 19px">' + esc(p.title || 'Untitled') + '</span><span class="mono silver">NEW</span></div>';
+      var img = $('img', b);
+      img.addEventListener('load', function () { if (img.naturalWidth > img.naturalHeight * 1.2) { b.classList.add('land'); $('.fr', b).style.aspectRatio = '3 / 2'; } });
+      grid.insertBefore(b, grid.firstChild);
+    });
+    var n = recount(view);
+    $$('[data-count="photos"]').forEach(function (e) { e.textContent = n; });
+  }
+  var FILM_AR = { '9:16': ['9 / 16', 't'], '16:9': ['16 / 9', 'w'], '1:1': ['1 / 1', 's'], '4:5': ['4 / 5', 's'], '4:3': ['4 / 3', 'w'], '2.39:1': ['2.39 / 1', 'w'] };
+  function playerHTML(id, f, ar) {
+    var poster = f.poster ? '<img class="poster" src="' + esc(f.poster) + '" alt="">' : '';
+    var src = esc(f.file) + (f.poster ? '' : '#t=0.5');
+    return '<div class="player" id="' + id + '" style="aspect-ratio: ' + ar + '"><video src="' + src + '" preload="' + (f.poster ? 'none' : 'metadata') + '" playsinline aria-label="' + esc(f.title) + '"></video>' + poster +
+      '<button type="button" class="big" aria-label="Play ' + esc(f.title) + '"><span><span class="ring">' + PLAYI + '</span><span class="credit">Play film' + (f.duration ? ' · ' + esc(f.duration) : '') + '</span></span></button>' +
+      '<div class="bar"><button type="button" class="pbtn p-play" aria-label="Pause">' + PAUSE + '</button><span class="time"><span class="cur">0:00</span>' + (f.duration ? ' / ' + esc(f.duration) : '') + '</span><input type="range" min="0" max="1000" value="0" step="1" aria-label="Seek">' +
+      '<button type="button" class="pbtn p-mute" aria-label="Mute"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor"/><path d="M13 7c1 1 1 5 0 6M15.5 5c2 2.5 2 7.5 0 10"/></svg></button>' +
+      '<button type="button" class="pbtn p-full" aria-label="Full screen"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 6V2h4M12 2h4v4M16 12v4h-4M6 16H2v-4"/></svg></button></div></div>';
+  }
+  function addFilms(list) {
+    var view = $('.view[data-view="films"]'), grid = $('[data-items]', view), group = $('[data-albums]', view), main = $('#main');
+    if (!grid) return;
+    var used = {};
+    list.slice().reverse().forEach(function (f, i) {
+      if (!f || !f.file || !f.title) return;
+      var slug = 'new-' + slugify(f.title); while (used[slug] || $('.view[data-view="film-' + slug + '"]')) slug += '-' + i; used[slug] = 1;
+      var fmt = FILM_AR[String(f.format || '').replace(/\s/g, '')] || FILM_AR['16:9'], ar = fmt[0], kind = fmt[1];
+      var cat = String(f.category || 'Festival').trim();
+      ensureAlbum(group, cat, cat, f.poster || 'video/dhoolpet.jpg');
+      var thumb = f.poster ? '<img src="' + esc(f.poster) + '" alt="Still from ' + esc(f.title) + '" loading="lazy">' : '<video class="still" src="' + esc(f.file) + '#t=0.5" muted playsinline preload="metadata" aria-hidden="true"></video>';
+      var a = document.createElement('a');
+      a.className = 'fcard ' + kind; a.href = '#film-' + slug; a.dataset.cat = cat; a.dataset.prev = f.file;
+      a.innerHTML = '<div class="fthumb" style="aspect-ratio: ' + ar + '">' + thumb + '<span class="tc-badge">NEW' + (f.duration ? ' · ' + esc(f.duration) : '') + '</span><span class="pl">' + PLAYI + '</span></div><div class="col g8"><span class="credit silver">' + esc(cat) + (f.year ? ' · ' + esc(f.year) : '') + '</span><h3>' + esc(f.title) + '</h3></div>';
+      grid.insertBefore(a, grid.firstChild);
+      var mw = ar === '9 / 16' ? '460px' : (ar === '1 / 1' || ar === '4 / 5' ? '760px' : '1280px');
+      var v = document.createElement('div');
+      v.className = 'view'; v.dataset.view = 'film-' + slug; v.dataset.title = f.title; v.dataset.sc = 'N' + (i + 1); v.hidden = true;
+      v.innerHTML = '<section class="fd-hero" style="min-height: 60svh"><div class="bg"' + (f.poster ? ' style="background-image: url(\'' + esc(f.poster) + '\')"' : '') + '></div><div class="shade"></div><div class="wrap fd-hero-in" style="grid-template-columns: 1fr"><div class="col g24">' +
+        '<span class="credit red" data-in>New film · ' + esc(cat) + (f.year ? ' · ' + esc(f.year) : '') + '</span><h1 class="disp caps h-xl" data-title-in>' + esc(f.title) + '</h1>' +
+        (f.description ? '<p class="lede" style="max-width: 34ch" data-in>' + esc(f.description) + '</p>' : '') +
+        '<div class="row g12" data-in><button type="button" class="btn solid" data-play="p-' + slug + '">' + PLAYI + ' Watch the film</button><a class="btn" href="#films">All films</a></div></div></div></section>' +
+        '<section class="wrap" style="padding-top: 40px"><div class="fd-player-wrap" style="--mw: ' + mw + '">' + playerHTML('p-' + slug, f, ar) + '</div></section>' +
+        '<section class="wrap sec"><dl class="facts"><div><dt>Category</dt><dd>' + esc(cat) + '</dd></div>' + (f.year ? '<div><dt>Year</dt><dd>' + esc(f.year) + '</dd></div>' : '') + (f.duration ? '<div><dt>Running time</dt><dd>' + esc(f.duration) + '</dd></div>' : '') + '<div><dt>Format</dt><dd>' + esc(f.format || '16:9') + '</dd></div><div><dt>Credit</dt><dd>Kishore</dd></div></dl></section>' +
+        '<a class="next-film" href="#films"' + (f.poster ? '' : ' style="min-height: 260px"') + '>' + (f.poster ? '<img src="' + esc(f.poster) + '" alt="" loading="lazy">' : '') + '<div class="wrap in" style="min-height: 260px"><span class="credit red">Folder 01 · Videos</span><span class="disp caps h-xl">All films</span></div></a>';
+      main.appendChild(v);
+      initPlayer($('.player', v));
+      initPreview(a);
+    });
+    var n = recount(view);
+    $$('[data-count="films"]').forEach(function (e) { e.textContent = n; });
+  }
+  function loadContent() {
+    if (!window.fetch) return Promise.resolve(null);
+    var timer = new Promise(function (r) { setTimeout(function () { r(null); }, 2500); });
+    var req = fetch('content.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    return Promise.race([req, timer]);
+  }
+
+  /* ---------- boot ---------- */
+  $$('.player').forEach(initPlayer);
+  $$('[data-prev]').forEach(initPreview);
+  loadContent().then(function (data) {
+    try {
+      if (data && Array.isArray(data.photos) && data.photos.length) addPhotos(data.photos);
+      if (data && Array.isArray(data.films) && data.films.length) addFilms(data.films);
+    } catch (err) { if (window.console) console.warn('content.json skipped:', err); }
+    refreshRoutes();
+    show(route() || 'home', true);
+  });
 })();

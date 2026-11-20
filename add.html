@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Add new work — Kishore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600..800&family=Manrope:wght@400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--black:#070707;--char:#111110;--graphite:#1B1B1A;--line:rgba(237,230,218,.14);--line2:rgba(237,230,218,.26);--white:#EDE6DA;--silver:#9C9A95;--red:#E0553F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--black);color:var(--white);font-family:'Manrope',Arial,sans-serif;font-size:16px;line-height:1.6}
+a{color:var(--white)}
+.wrap{max-width:860px;margin:0 auto;padding:40px 20px 80px}
+h1{font-family:'Syne',Arial,sans-serif;font-weight:800;font-size:clamp(34px,7vw,64px);line-height:.95;margin:8px 0 16px;text-transform:uppercase}
+h2{font-family:'Syne',Arial,sans-serif;font-weight:700;font-size:22px;margin:0 0 6px}
+.k{font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--red)}
+.muted{color:var(--silver)}
+.step{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:26px 0;border-top:1px solid var(--line)}
+.num{width:44px;height:44px;border-radius:99px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-family:'Syne';font-weight:800}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 20px;border:1px solid var(--line2);background:transparent;color:var(--white);font:700 11px/1 'Manrope',Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;cursor:pointer}
+.btn.solid{background:var(--white);color:var(--black);border-color:var(--white)}
+.btn:hover{border-color:var(--white)}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.seg{display:inline-flex;border:1px solid var(--line2)}
+.seg button{min-height:46px;padding:0 22px;background:none;border:0;color:var(--white);font:700 12px 'Manrope';letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--white);color:var(--black)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 20px;margin-top:16px}
+.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--silver);margin-bottom:6px}
+input,select,textarea{width:100%;background:var(--char);border:1px solid var(--line2);color:var(--white);font:inherit;padding:12px 14px;min-height:48px;border-radius:0}
+input:focus,select:focus,textarea:focus,.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.hint{font-size:13px;color:var(--silver);margin-top:6px}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--char);border:1px solid var(--line);padding:16px;font:13px/1.55 'IBM Plex Mono',monospace;max-height:340px;overflow:auto;margin:12px 0 0}
+.err{color:var(--red);font-weight:700}
+.ok{color:#8fd19e;font-weight:700}
+.box{background:var(--graphite);border:1px solid var(--line);padding:18px 20px;margin-top:22px}
+.box li{margin:4px 0}
+[hidden]{display:none!important}
+@media (max-width:640px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<span class="k">Kishore · Private helper page</span>
+<h1>Add new work</h1>
+<p class="muted">Three steps, about two minutes. New work appears at the top of its folder on the site about a minute after you save.</p>
+
+<div class="step"><span class="num">1</span><div>
+<h2>Upload the file to GitHub</h2>
+<p class="muted">Open the right folder, choose <b>Add file → Upload files</b>, pick your photo or video, then press <b>Commit changes</b>. Note the exact file name.</p>
+<div class="row"><a class="btn" id="up-photo" href="https://github.com/nandiniK7/kishore-portfolio/upload/main/uploads/photos" target="_blank" rel="noopener">Upload a photo ↗</a><a class="btn" id="up-video" href="https://github.com/nandiniK7/kishore-portfolio/upload/main/uploads/videos" target="_blank" rel="noopener">Upload a video ↗</a></div>
+<div class="box"><ul style="margin:0;padding-left:18px">
+<li><b>Photos:</b> JPG, under 3 MB (about 2000px on the long side is perfect).</li>
+<li><b>Videos:</b> MP4, under 25 MB (export 1080p or 720p). Optional: also upload a cover image (JPG) for the film.</li>
+<li>Use simple file names with no spaces, e.g. <code>bonalu-2026.jpg</code>, <code>wedding-teaser.mp4</code>.</li>
+<li>On a phone, open GitHub in your browser's <b>Desktop site</b> mode to see "Upload files".</li>
+</ul></div>
+</div></div>
+
+<div class="step"><span class="num">2</span><div>
+<h2>Fill in the details</h2>
+<div class="seg" role="group" aria-label="Type of work"><button type="button" data-type="photo" aria-pressed="true">Photo</button><button type="button" data-type="film" aria-pressed="false">Film</button></div>
+<form id="f" class="grid" novalidate>
+<div class="full"><label for="file">File name you uploaded</label><input id="file" placeholder="e.g. bonalu-2026.jpg" autocomplete="off"><div class="hint">Exactly as on GitHub, including .jpg / .mp4</div></div>
+<div class="full"><label for="title">Title</label><input id="title" placeholder="e.g. Bonalu at Lal Darwaza"></div>
+<div data-only="photo"><label for="album">Album</label><select id="album"><option>Festivals</option><option>Motorsport</option><option>Stage &amp; live</option><option>Architecture</option><option>Landscape &amp; more</option><option value="__new">New album…</option></select></div>
+<div data-only="photo" id="newalbum-w" hidden><label for="newalbum">New album name</label><input id="newalbum" placeholder="e.g. Weddings"></div>
+<div data-only="photo"><label for="date">Date taken</label><input id="date" type="date"></div>
+<div data-only="photo" class="full"><label for="caption">Caption (optional)</label><input id="caption" placeholder="e.g. Old City, Hyderabad"></div>
+<div data-only="film" hidden><label for="category">Film folder</label><select id="category"><option>Festival</option><option>Event</option><option>Event &amp; Brand</option><option>Documentary</option><option value="__new">New folder…</option></select></div>
+<div data-only="film" id="newcat-w" hidden><label for="newcat">New folder name</label><input id="newcat" placeholder="e.g. Music videos"></div>
+<div data-only="film" hidden><label for="format">Shape</label><select id="format"><option value="9:16">Vertical 9:16 (reel)</option><option value="16:9">Wide 16:9</option><option value="1:1">Square 1:1</option><option value="4:5">Portrait 4:5</option></select></div>
+<div data-only="film" hidden><label for="year">Year</label><input id="year" inputmode="numeric" placeholder="2026"></div>
+<div data-only="film" hidden><label for="duration">Length</label><input id="duration" placeholder="e.g. 0:45"></div>
+<div data-only="film" hidden><label for="poster">Cover image file (optional)</label><input id="poster" placeholder="e.g. wedding-teaser.jpg"><div class="hint">Upload it to the videos folder too</div></div>
+<div data-only="film" class="full" hidden><label for="desc">One-line description</label><input id="desc" placeholder="What the film is about"></div>
+<div class="full"><button type="submit" class="btn solid">Create my content list</button> <span id="msg" role="status"></span></div>
+</form>
+</div></div>
+
+<div class="step" id="s3" hidden><span class="num">3</span><div>
+<h2>Save it on GitHub</h2>
+<p class="muted">Copy the full list below, open <b>content.json</b> on GitHub (pencil icon), <b>select everything</b> in the file, paste to replace it, then press <b>Commit changes</b>.</p>
+<div class="row"><button type="button" class="btn solid" id="copy">Copy the list</button><a class="btn" href="https://github.com/nandiniK7/kishore-portfolio/edit/main/content.json" target="_blank" rel="noopener">Open content.json ↗</a></div>
+<pre id="out"></pre>
+<p class="muted" style="margin-top:14px">Adding more than one item? Paste this first and commit, refresh this page, then add the next one.</p>
+</div></div>
+
+<p class="muted" style="border-top:1px solid var(--line);padding-top:24px;margin-top:10px">Made a mistake? Open content.json on GitHub and delete that item's lines (from <code>{</code> to <code>}</code> and the comma), or ask Nandini. The site keeps working even if the list has an error, the new items just won't show until it's fixed.</p>
+<p><a href="./">← Back to the portfolio</a></p>
+</main>
+<script>
+(function () {
+  var type = 'photo', data = null;
+  var $ = function (id) { return document.getElementById(id); };
+  fetch('content.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { data = j; }).catch(function () { data = null; });
+  document.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      type = b.dataset.type;
+      document.querySelectorAll('.seg button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      document.querySelectorAll('[data-only]').forEach(function (el) { el.hidden = el.dataset.only !== type; });
+      $('newalbum-w').hidden = type !== 'photo' || $('album').value !== '__new';
+      $('newcat-w').hidden = type !== 'film' || $('category').value !== '__new';
+      $('file').placeholder = type === 'photo' ? 'e.g. bonalu-2026.jpg' : 'e.g. wedding-teaser.mp4';
+    });
+  });
+  $('album').addEventListener('change', function () { $('newalbum-w').hidden = this.value !== '__new'; });
+  $('category').addEventListener('change', function () { $('newcat-w').hidden = this.value !== '__new'; });
+  $('f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var msg = $('msg'); msg.className = 'err';
+    var file = $('file').value.trim().replace(/^.*[\\/]/, ''), title = $('title').value.trim();
+    if (!file || !title) { msg.textContent = 'Add the file name and a title.'; return; }
+    if (/\s/.test(file)) { msg.textContent = 'The file name has a space. Rename the file without spaces and upload again.'; return; }
+    var isPhoto = type === 'photo';
+    if (isPhoto && !/\.(jpe?g|png|webp)$/i.test(file)) { msg.textContent = 'Photos should be .jpg, .png or .webp'; return; }
+    if (!isPhoto && !/\.(mp4|webm|mov)$/i.test(file)) { msg.textContent = 'Films should be .mp4 (best), .webm or .mov'; return; }
+    var base = data && typeof data === 'object' ? data : {};
+    var out = { photos: Array.isArray(base.photos) ? base.photos.slice() : [], films: Array.isArray(base.films) ? base.films.slice() : [] };
+    var item;
+    if (isPhoto) {
+      var album = $('album').value === '__new' ? $('newalbum').value.trim() : $('album').value;
+      if (!album) { msg.textContent = 'Give the new album a name.'; return; }
+      item = { file: 'uploads/photos/' + file, title: title, album: album };
+      if ($('date').value) item.date = $('date').value;
+      if ($('caption').value.trim()) item.caption = $('caption').value.trim();
+      out.photos.unshift(item);
+    } else {
+      var cat = $('category').value === '__new' ? $('newcat').value.trim() : $('category').value;
+      if (!cat) { msg.textContent = 'Give the new folder a name.'; return; }
+      item = { file: 'uploads/videos/' + file, title: title, category: cat, format: $('format').value };
+      if ($('year').value.trim()) item.year = $('year').value.trim();
+      if ($('duration').value.trim()) item.duration = $('duration').value.trim();
+      var poster = $('poster').value.trim().replace(/^.*[\\/]/, '');
+      if (poster) item.poster = 'uploads/videos/' + poster;
+      if ($('desc').value.trim()) item.description = $('desc').value.trim();
+      out.films.unshift(item);
+    }
+    var full = { _help: 'Add new work with the helper page: add.html. Newest items go first.', photos: out.photos, films: out.films };
+    $('out').textContent = JSON.stringify(full, null, 2);
+    $('s3').hidden = false; msg.className = 'ok'; msg.textContent = data ? 'Done — now step 3.' : 'Done — now step 3. (Could not read the current list, so this starts a new one.)';
+    $('s3').scrollIntoView({ behavior: 'smooth' });
+  });
+  $('copy').addEventListener('click', function () {
+    var b = this, t = $('out').textContent;
+    try { navigator.clipboard.writeText(t).then(function () { b.textContent = 'Copied ✓'; setTimeout(function () { b.textContent = 'Copy the list'; }, 2000); }, function () { b.textContent = 'Select the text and copy'; }); }
+    catch (x) { b.textContent = 'Select the text and copy'; }
+  });
+})();
+</script>
+</body>
+</html>
