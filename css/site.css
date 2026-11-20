@@ -388,3 +388,81 @@ table.spec th{font-family:var(--f-ui);font-stretch:125%;text-transform:uppercase
   .strip-track figcaption{display:none}
 }
 @media (prefers-reduced-motion:reduce){.strip-track{animation:none}}
+
+/* ============ v3: new type — Syne + Manrope ============ */
+:root{--f-disp:'Syne','Helvetica Neue',Arial,sans-serif;--f-ui:'Manrope','Helvetica Neue',Arial,sans-serif}
+body{font-family:var(--f-ui)}
+.disp,.op-name,.brand,.menu-links a,.slate .t,.fcard h3{font-family:var(--f-disp);font-variation-settings:normal;font-weight:700;letter-spacing:-.01em}
+.disp.caps,.fcard h3,.menu-links a,.slate .t{letter-spacing:.01em}
+.h-xxl,.h-xl{font-weight:800;line-height:.9}
+.opening.simple .op-name{font-weight:800;letter-spacing:.03em;margin-right:-.03em;font-size:clamp(60px,11.5vw,200px);line-height:.88}
+.brand{font-weight:800;letter-spacing:.14em;font-size:clamp(18px,1.5vw,22px)}
+.credit{font-family:var(--f-ui);font-stretch:normal;font-weight:700;letter-spacing:.24em;font-size:11px}
+.nav a,.btn,.chip{font-family:var(--f-ui);font-stretch:normal;font-weight:700}
+.nav a{letter-spacing:.16em}
+.btn{letter-spacing:.18em}
+.lede,.ital{font-family:var(--f-disp);font-style:normal;font-weight:500;letter-spacing:-.01em;font-variation-settings:normal}
+.lede{line-height:1.25}
+.op-about{font-family:var(--f-ui)}
+.fcard h3{font-size:clamp(22px,1.8vw,30px)}
+
+/* ============ folders (home) ============ */
+.folders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(24px,3vw,48px);padding-top:26px}
+.folder{position:relative;display:block;color:var(--white)}
+.folder-tab{position:absolute;left:0;top:-26px;height:27px;padding:0 22px;display:flex;align-items:center;background:var(--graphite);border:1px solid var(--line2);border-bottom:0;border-radius:8px 8px 0 0}
+.folder-body{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px;align-items:center;min-height:380px;padding:clamp(24px,3vw,40px);background:var(--graphite);border:1px solid var(--line2);border-radius:0 10px 10px 10px;overflow:hidden;transition:border-color .4s,background .4s}
+.folder:hover .folder-body{border-color:rgba(237,230,218,.5);background:#212120}
+.folder:hover,.folder:hover .disp{color:var(--white)}
+.fan{position:relative;height:300px}
+.fan img{position:absolute;top:50%;left:50%;width:58%;aspect-ratio:3/4;object-fit:cover;border:6px solid #0c0c0b;box-shadow:0 24px 50px rgba(0,0,0,.55);transition:transform .8s var(--ease-out)}
+.folder.vid .fan img{aspect-ratio:4/5}
+.fan img:nth-child(1){transform:translate(-92%,-50%) rotate(-9deg)}
+.fan img:nth-child(2){transform:translate(-50%,-54%) rotate(0deg);z-index:2}
+.fan img:nth-child(3){transform:translate(-8%,-50%) rotate(9deg)}
+.folder:hover .fan img:nth-child(1){transform:translate(-108%,-52%) rotate(-14deg)}
+.folder:hover .fan img:nth-child(2){transform:translate(-50%,-60%) rotate(0deg) scale(1.04)}
+.folder:hover .fan img:nth-child(3){transform:translate(8%,-52%) rotate(14deg)}
+.folder-txt{display:flex;flex-direction:column;gap:14px}
+.folder-txt h3{font-size:clamp(48px,5.4vw,92px);font-weight:800;line-height:.9;text-transform:uppercase}
+.folder-txt .open{display:inline-flex;align-items:center;gap:10px;margin-top:8px}
+.folder:hover .open{color:var(--red)}
+
+/* ============ albums (films + photography pages) ============ */
+.albums{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(190px,100%),1fr));gap:22px 18px;padding-top:14px}
+.album{position:relative;display:flex;flex-direction:column;gap:12px;padding:0;border:0;background:none;cursor:pointer;text-align:left;color:var(--white)}
+.album-tab{position:absolute;left:0;top:-12px;width:42%;height:13px;background:var(--graphite);border:1px solid var(--line2);border-bottom:0;border-radius:6px 6px 0 0;transition:background .3s,border-color .3s}
+.album-cover{display:block;aspect-ratio:4/3;overflow:hidden;background:var(--graphite);border:1px solid var(--line2);border-radius:0 8px 8px 8px;padding:8px;transition:border-color .3s,background .3s}
+.album-cover img{width:100%;height:100%;object-fit:cover;border-radius:3px;filter:brightness(.75);transition:filter .4s,transform 1s var(--ease-out)}
+.album:hover .album-cover img{filter:brightness(.95);transform:scale(1.03)}
+.album-txt{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.album-t{font-family:var(--f-disp);font-weight:700;font-size:18px}
+.album[aria-pressed="true"] .album-cover,.album[aria-pressed="true"] .album-tab{border-color:var(--red);background:#2a1512}
+.album[aria-pressed="true"] .album-cover img{filter:brightness(1)}
+.album[aria-pressed="true"] .album-t{color:var(--red)}
+.group-h{margin:72px 0 0;padding-bottom:4px}
+.album-now span{color:var(--white)}
+@media (max-width:900px){
+  .folders{grid-template-columns:1fr;gap:56px}
+  .folder-body{grid-template-columns:1fr;min-height:0}
+  .fan{height:230px}
+  .albums{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 12px}
+  .album-t{font-size:15px}
+}
+/* v3 sizing fixes for the wider Syne face */
+.opening.simple .op-name{white-space:nowrap;font-size:clamp(46px,9.6vw,172px);letter-spacing:.02em;margin-right:-.02em}
+.disp.h-xxl,.disp.h-xl,.h-xxl,.h-xl{font-weight:800}
+.h-xxl{font-size:clamp(34px,8.6vw,150px)}
+.h-xl{font-size:clamp(36px,6.6vw,118px)}
+.h-l{font-size:clamp(32px,4.6vw,76px)}
+.folder-txt{min-width:0}
+.folder-txt h3{font-size:clamp(32px,3.1vw,54px)}
+@media (max-width:900px){
+  .opening.simple .op-name{font-size:12.4vw;letter-spacing:.01em}
+  .h-xxl{font-size:10.6vw}
+  .fan img{width:44%}
+  .fan img:nth-child(1){transform:translate(-96%,-50%) rotate(-8deg)}
+  .fan img:nth-child(3){transform:translate(-4%,-50%) rotate(8deg)}
+  .folder-body{overflow:hidden}
+}
+.op-name{display:block;white-space:nowrap}
+h1.disp,h2.disp,h3.disp,.folder-txt h3,.opt .disp,.next-film .disp,.fcard h3{overflow-wrap:normal;word-break:normal}
